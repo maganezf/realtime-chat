@@ -38,17 +38,21 @@ This project was made using the follow technologies:
 ## :construction_worker: How to Run
 
 ```bash
-# First have sure that you have the nodejs installed on your machine
+# First have sure that you have the nodejs (prefer Latest LTS Version) installed on your machine
 # Clone Repository and change directory to project
 $ git clone https://github.com/maganezf/realtime-chat.git && cd realtime-chat
 ```
 
 ```bash
 # Install dependencies and run the frontend application
-$ cd frontend && npm install or yarn install
+$ cd frontend && npm install or yarn install & npm dev or yarn dev
 
 # Install dependencies and run the backend application
-$ cd backend && npm socket or yarn socket
+$ cd backend && npm install or yarn install && npm socket or yarn socket
+```
+
+```bash
+# Check logs in the console for better understanding (server and client)
 ```
 
 Your server will be running at <http://localhost:3333> <br/> And go to

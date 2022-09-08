@@ -2,7 +2,7 @@ import cors from 'cors';
 import express from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
-import type { Message } from '../../types';
+import type { ClientMessage } from '../../types';
 import { encrypt } from './utils/cryptography';
 
 const app = express();
@@ -18,23 +18,33 @@ const socket = new Server(httpServer, {
 });
 
 socket.on('connection', socket => {
-  console.log(`User Connected: ${socket.id}`);
+  console.log(`Connected, connection id: ${socket.id}`);
 
-  socket.on('join_room', (room: string) => {
-    socket.join(room);
-    console.log(`User with ID: ${socket.id} joined in the room: ${room}`);
-  });
-
-  socket.on('send_message', (data: Message) => {
-    socket.to(data.room).emit('receive_message', data);
-    console.log({
-      encryptedMessage: `${encrypt(data.message).join('')}`,
-      fromUser: data.author,
+  socket.on('join_room', (data: { room: string; user: string }) => {
+    socket.join(data.room);
+    console.log('User connected', {
+      connectionId: socket.id,
+      userId: data.user,
+      room: data.room,
     });
   });
 
+  socket.on('send_message', (data: ClientMessage) => {
+    socket.to(data.room).emit('receive_message', {
+      ...data,
+      message: encrypt(data.message),
+    });
+    console.log(
+      `Server: This message was sent by the user ${data.author}: ${encrypt(
+        data.message
+      ).join('')}`
+    );
+  });
+
   socket.on('disconnect', () => {
-    console.log('User Disconnected', socket.id);
+    console.log('User disconnected', {
+      connectionId: socket.id,
+    });
   });
 });
 

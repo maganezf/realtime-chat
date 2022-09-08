@@ -1,13 +1,8 @@
 import { useEffect, useState } from 'react';
 import ScrollToBottom from 'react-scroll-to-bottom';
 import { Socket } from 'socket.io-client';
-
-type Message = {
-  room: string;
-  author: string;
-  message: string;
-  time: string;
-};
+import type { ClientMessage, ServerMessage } from '../../../types';
+import { decrypt } from '../utils/cryptography';
 
 interface ChatProps {
   socket: Socket;
@@ -17,11 +12,11 @@ interface ChatProps {
 
 export function Chat({ socket, username, room }: ChatProps) {
   const [currentMessage, setCurrentMessage] = useState('');
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<ClientMessage[]>([]);
 
   const sendMessage = () => {
     if (currentMessage) {
-      const newMessage: Message = {
+      const newMessage: ClientMessage = {
         room: room,
         author: username,
         message: currentMessage,
@@ -39,9 +34,17 @@ export function Chat({ socket, username, room }: ChatProps) {
   };
 
   useEffect(() => {
-    socket.on('receive_message', (newMessage: Message) =>
-      setMessages(message => [...message, newMessage])
-    );
+    socket.on('receive_message', (newMessage: ServerMessage) => {
+      setMessages(message => [
+        ...message,
+        { ...newMessage, message: decrypt(newMessage.message) },
+      ]);
+      console.log(
+        `Client: This message was sent by the user ${
+          newMessage.author
+        }: ${newMessage.message.join('')}`
+      );
+    });
   }, [socket]);
 
   return (
@@ -82,7 +85,7 @@ export function Chat({ socket, username, room }: ChatProps) {
           value={currentMessage}
           placeholder="Type your message here"
           onChange={({ target: { value } }) => setCurrentMessage(value)}
-          onKeyPress={({ key }) => key === 'Enter' && sendMessage()}
+          onKeyDown={({ key }) => key === 'Enter' && sendMessage()}
         />
         <button onClick={sendMessage}>&#9658;</button>
       </div>

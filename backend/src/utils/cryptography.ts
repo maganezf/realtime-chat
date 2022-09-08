@@ -1,12 +1,14 @@
-export const encrypt = (message: string) => {
-  let messageValues = message.split('');
-  messageValues = messageValues.map(letter => letter.charCodeAt(0).toString());
-  return messageValues;
-};
+import { getVowel, logic } from '../../../helpers';
 
-export const decrypt = (messageValues: string[]) => {
-  messageValues = messageValues.map(letter =>
-    String.fromCharCode(Number(letter))
-  );
-  return messageValues.join('');
+export const encrypt = (message: string) => {
+  let messageValues = message
+    .split('')
+    .map(letter =>
+      logic(letter)
+        ? (letter =
+            String(getVowel('value', letter)) +
+            String(new Date().getUTCFullYear()))
+        : letter.charCodeAt(0).toString()
+    );
+  return messageValues;
 };

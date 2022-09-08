@@ -17,7 +17,7 @@ export function JoinChat({
 }: JoinChatProps) {
   const joinRoom = () => {
     if (username.value && room.value) {
-      socket.emit('join_room', room.value);
+      socket.emit('join_room', { room: room.value, user: username.value });
       setShowChat(true);
     }
   };
